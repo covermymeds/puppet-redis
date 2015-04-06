@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "author": "CoverMyMeds",
   "license": "MIT",
-  "summary": "Redis and Sentinel config management.",,
+  "summary": "Redis and Sentinel config management.",
   "source": "https://github.com/covermymeds/puppet-redis",
   "project_page": "https://github.com/covermymeds/puppet-redis",
   "issues_url": "https://github.com/covermymeds/puppet-redis/issues",
