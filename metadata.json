@@ -1,0 +1,17 @@
+{
+  "name": "covermymeds-redis",
+  "version": "0.1.0",
+  "author": "CoverMyMeds",
+  "license": "MIT",
+  "summary": "Redis and Sentinel config management.",,
+  "source": "https://github.com/covermymeds/puppet-redis",
+  "project_page": "https://github.com/covermymeds/puppet-redis",
+  "issues_url": "https://github.com/covermymeds/puppet-redis/issues",
+  "tags": ["redis","sentinel"],
+  "operatingsystem_support": [
+    { "operatingsystem":"RedHat", "operatingsystemrelease":[ "6", "7" ] }
+  ],
+  "dependencies": [
+    { "name": "puppetlabs/stdlib", "version_requirement": "4.x" }
+  ]
+}

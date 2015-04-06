@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# redis_config.sh
+#
+# Set runtime configuration for redis instance because
+# managing the config file is just about impossible.
+#
+redis_cli='/usr/bin/redis-cli'
+redis_state=$(${redis_cli} info | grep role | awk -F':' '{print $2}')
+
+if ! echo "${redis_state}" | egrep "(master|slave)" > /dev/null;
+then
+  echo "Redis state check failed. Exiting."
+  exit
+fi
+
+<% if @config.respond_to?(:key) -%>
+<%   @config.each { |k,v| -%>
+<%     if k.eql?('slaveof') -%>
+<%       fail "You should set slaveof directive at the class level" -%>
+<%     end -%>
+${redis_cli} config set <%= k %> "<%= v %>"
+<%   } -%>
+<% end -%>
+
+# Force a rewrite to persist these settings
+${redis_cli} config rewrite
