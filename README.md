@@ -26,8 +26,12 @@ class { 'redis':
 
 Install and configure Sentinel to manage 2 independent Redis Master/Slave setups. (Sentinel discovers the other slaves.)
 ```
-$redis_clusters = { 'cluster1' => { 'master_ip' => '192.168.33.51' },
-                    'cluster2' => { 'master_ip' => '192.168.33.54' },
+$redis_clusters = { 'cluster1' => { 'master_ip' => '192.168.33.51',
+                                    'down_after' => '30000',
+                                    'failover_timeout' => '180000' },
+                    'cluster2' => { 'master_ip' => '192.168.33.54',
+                                    'down_after' => '30000',
+                                    'failover_timeout' => '180000' },
                   }
 
 class { 'sentinel':
