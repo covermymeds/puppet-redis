@@ -34,15 +34,6 @@ dir /tmp
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-<% if @redis_clusters.respond_to?(:key?) -%>
-<% @redis_clusters.each_key { |master| -%>
-sentinel monitor <%= master %> <%= @redis_clusters[master]['master_ip'] %> 6379 2
-sentinel down-after-milliseconds <%= master %> <%= @redis_clusters[master]['down_after'] %>
-sentinel parallel-syncs <%= master %> 1
-sentinel failover-timeout <%= master %> <%= @redis_clusters[master]['failover_timeout'] %>
-#sentinel notification-script mymaster /var/redis/notify.sh
-<% } %>
-<% end -%>
 
 # sentinel auth-pass <master-name> <password>
 #

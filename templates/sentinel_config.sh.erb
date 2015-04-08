@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# redis_config.sh
+#
+# Set runtime configuration for redis instance because
+# managing the config file is just about impossible.
+#
+sentinel_cli='/usr/bin/redis-cli -p 26379'
+sentinel_state=$(${sentinel_cli} ping)
+
+if ! echo "${sentinel_state}" | grep -i pong  > /dev/null;
+then
+  echo "Sentinel state check failed. Exiting."
+  exit
+fi
+
+<% if @redis_clusters.respond_to?(:key) -%>
+<%   @redis_clusters.each_key { |k| -%>
+${sentinel_cli} sentinel  monitor <%= k %> <%= @redis_clusters[k]['master_ip'] %> 6379 2 
+<%     if @redis_clusters[k]['down_after'] -%>
+${sentinel_cli} sentinel set <%= k %> down-after-milliseconds <%= @redis_clusters[k]['down_after'] %>
+<%     end -%>
+<%     if @redis_clusters[k]['failover_timeout'] -%>
+${sentinel_cli} sentinel set <%= k %> failover-timeout <%= @redis_clusters[k]['failover_timeout'] %>
+<%     end -%>
+<%   } -%>
+<% end -%>
