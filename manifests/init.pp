@@ -53,8 +53,8 @@ class redis (
 
   # Lay down intermediate config file and copy it in with a 'cp' exec resource.
   # Redis rewrites its config file with additional state information so we only
-  # want to do this the first time redis starts so we can at least get it daemonized
-  # and assign a master node if applicable.
+  # want to do this the first time redis starts so we can at least get it 
+  # daemonized and assign a master node if applicable.
   file { '/etc/redis.conf.puppet':
     ensure  => present,
     owner   => redis,
@@ -97,8 +97,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['redis'],
-                     File[$config_script] ],
+    require     => [ Service['redis'], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on

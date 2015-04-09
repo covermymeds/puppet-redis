@@ -41,9 +41,9 @@ class redis::sentinel (
     require => Package['redis'],
   }
 
-  # Sentinel rewrites its config file so we lay this one down to manage changes.
-  # This allows us to manage configuration changes without rewriting the
-  # file on every Puppet run.
+  # Sentinel rewrites its config file so we lay this one down initially.
+  # This allows us to manage the configuration file upon installation
+  # and then never again.
   file { '/etc/sentinel.conf.puppet':
     ensure  => present,
     owner   => 'redis',
@@ -67,6 +67,26 @@ class redis::sentinel (
     hasrestart => true,
     hasstatus  => true,
     require    => Package['redis'],
+  }
+
+  # Lay down the runtime configuration script
+  $config_script = '/usr/local/bin/sentinel_config.sh'
+
+  file { $config_script:
+    ensure  => present,
+    owner   => 'redis',
+    group   => 'root',
+    mode    => '0755',
+    content => template('redis/sentinel_config.sh.erb'),
+    require => Package['redis'],
+    notify  => Exec['configure_sentinel'],
+  }
+
+  # Apply the configuration. 
+  exec { 'configure_sentinel':
+    command     => $config_script,
+    refreshonly => true,
+    require     => [ Service['sentinel'], File[$config_script] ],
   }
 
 }
