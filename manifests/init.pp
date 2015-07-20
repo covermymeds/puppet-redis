@@ -102,8 +102,6 @@ class redis (
 
   # In an HA setup we choose to only persist data to disk on
   # the slaves for better performance.
-  if $manage_persistence {
-    include redis::persist
-  }
+  include redis::persist
 
 }
