@@ -12,8 +12,8 @@ class redis::persist (
 ) {
 
   $ensure = $manage_persistence ? {
-    'true'  => 'present',
-    'false' => 'absent',
+    true  => 'present',
+    false => 'absent',
   }
 
   $config_script = '/usr/local/bin/redis_persist.sh'
