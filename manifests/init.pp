@@ -93,6 +93,13 @@ class redis (
     notify  => Exec['configure_redis'],
   }
     
+  # The config script will touch this file if redis is down when it tries to run.
+  # Ensuring that it is absent allows puppet to retry the configuration step.
+  file { '/var/cache/CONFIGUREREDIS':
+    ensure => absent,
+    notify => Exec['configure_redis'],
+  }
+
   # Apply the configuration. 
   exec { 'configure_redis':
     command     => $config_script,

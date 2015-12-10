@@ -11,7 +11,8 @@ redis_state=$(${redis_cli} info | grep role | awk -F':' '{print $2}')
 if ! echo "${redis_state}" | egrep "(master|slave)" > /dev/null;
 then
   echo "Redis state check failed. Exiting."
-  exit
+  /bin/touch /var/cache/CONFIGUREREDIS
+  exit 1
 fi
 
 <% if @config.respond_to?(:key) -%>
