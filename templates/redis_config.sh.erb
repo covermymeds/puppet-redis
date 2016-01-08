@@ -17,9 +17,6 @@ fi
 
 <% if @config.respond_to?(:key) -%>
 <%   @config.each { |k,v| -%>
-<%     if k.eql?('slaveof') -%>
-<%       fail "You should set slaveof directive at the class level" -%>
-<%     end -%>
 ${redis_cli} config set <%= k %> "<%= v %>"
 <%   } -%>
 <% end -%>
