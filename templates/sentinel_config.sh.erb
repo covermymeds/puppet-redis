@@ -16,7 +16,7 @@ fi
 
 <% if @redis_clusters.respond_to?(:key) -%>
 <%   @redis_clusters.each_key { |k| -%>
-${sentinel_cli} sentinel  monitor <%= k %> <%= @redis_clusters[k]['master_ip'] %> 6379 2 
+${sentinel_cli} sentinel monitor <%= k %> <%= @redis_clusters[k]['master_ip'] %> 6379 <%= @redis_clusters[k]['quorum'] || 2 %>
 <%     if @redis_clusters[k]['down_after'] -%>
 ${sentinel_cli} sentinel set <%= k %> down-after-milliseconds <%= @redis_clusters[k]['down_after'] %>
 <%     end -%>
