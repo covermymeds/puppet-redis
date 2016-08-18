@@ -51,13 +51,13 @@ class redis::sentinel (
     mode    => '0644',
     content => template('redis/sentinel.conf.erb'),
     require => Package['redis'],
-    notify  => Exec['cp_sentinel_conf'],
   }
 
   exec { 'cp_sentinel_conf':
-    command     => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf',
-    refreshonly => true,
-    notify      => Service[sentinel],
+    command => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf && /bin/touch /etc/sentinel.conf.copied',
+    creates => '/etc/sentinel.conf.copied',
+    notify  => Service['sentinel'],
+    require => File['/etc/sentinel.conf.puppet'],
   }
 
   # Run it!

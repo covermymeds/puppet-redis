@@ -62,13 +62,13 @@ class redis (
     mode    => '0644',
     content => template('redis/redis.conf.puppet.erb'),
     require => Package['redis'],
-    notify  => Exec['cp_redis_config'],
   }
 
   exec { 'cp_redis_config':
-    command     => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf',
-    refreshonly => true,
-    notify      => Service[redis],
+    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
+    creates => '/etc/redis.conf.copied',
+    require => File['/etc/redis.conf.puppet'],
+    notify  => Service[redis],
   }
 
   # Run it!

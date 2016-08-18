@@ -1,6 +1,6 @@
 {
   "name": "covermymeds-redis",
-  "version": "0.2.4",
+  "version": "1.0.0",
   "author": "CoverMyMeds",
   "license": "MIT",
   "summary": "Redis and Sentinel config management.",

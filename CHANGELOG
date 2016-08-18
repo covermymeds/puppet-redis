@@ -1,0 +1,2 @@
+* Thu Aug 18 2016 Dan Sajner <dsajner@covermymeds.com> - 1.0.0
+- BREAKING CHANGE: Introduces a semaphore file to enforce the one-time copy of initial redis and sentinel config files.
