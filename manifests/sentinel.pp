@@ -54,7 +54,7 @@ class redis::sentinel (
   }
 
   exec { 'cp_sentinel_conf':
-    command => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf; /bin/touch /etc/sentinel.conf.copied',
+    command => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf && /bin/touch /etc/sentinel.conf.copied',
     creates => '/etc/sentinel.conf.copied',
     notify  => Service['sentinel'],
     require => File['/etc/sentinel.conf.puppet'],

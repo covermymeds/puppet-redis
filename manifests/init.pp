@@ -65,7 +65,7 @@ class redis (
   }
 
   exec { 'cp_redis_config':
-    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf; /bin/touch /etc/redis.conf.copied',
+    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
     creates => '/etc/redis.conf.copied',
     require => File['/etc/redis.conf.puppet'],
     notify  => Service[redis],
