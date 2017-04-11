@@ -27,6 +27,7 @@ class redis (
   $manage_persistence = false,
   $slaveof            = undef,
   $version            = 'installed',
+  $disable_thp        = true,
 ) {
 
   # Install the redis package
@@ -110,5 +111,15 @@ class redis (
   # In an HA setup we choose to only persist data to disk on
   # the slaves for better performance.
   include redis::persist
+
+  # Redis docs recommend disabling transparent huge pages
+  # http://redis.io/topics/latency
+  if $disable_thp {
+    exec { "disable_transparent_hugepage_enabled":
+      command => '/bin/echo never > /sys/kernel/mm/transparent_hugepage/enabled',
+      unless  => '/bin/grep -c \'\[never\]\' /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null',
+      notify  => Service['redis']
+    }
+  }
 
 }
