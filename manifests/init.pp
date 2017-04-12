@@ -7,7 +7,8 @@
 # $config: A hash of Redis config options to apply at runtime
 # $manage_persistence: Boolean flag for including the redis::persist class
 # $slaveof: IP address of the initial master Redis server 
-# $version: The package version of Redis you want to install 
+# $version: The package version of Redis you want to install
+# $packages: The packages needed to install redis
 #
 # === Examples
 #
@@ -27,10 +28,11 @@ class redis (
   $manage_persistence = false,
   $slaveof            = undef,
   $version            = 'installed',
+  $packages           = ['redis']
 ) {
 
   # Install the redis package
-  ensure_packages(['redis'], { 'ensure' => $version })
+  ensure_packages($packages, { 'ensure' => $version })
 
   # Define the data directory with proper ownership if provided
   if ! empty($config['dir']) {
@@ -38,7 +40,7 @@ class redis (
       ensure  => directory,
       owner   => 'redis',
       group   => 'redis',
-      require => Package['redis'],
+      require => Package[$packages],
       before  => Exec['configure_redis'],
     }
   }
@@ -48,12 +50,12 @@ class redis (
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
-    require => Package['redis'],
+    require => Package[$packages],
   }
 
   # Lay down intermediate config file and copy it in with a 'cp' exec resource.
   # Redis rewrites its config file with additional state information so we only
-  # want to do this the first time redis starts so we can at least get it 
+  # want to do this the first time redis starts so we can at least get it
   # daemonized and assign a master node if applicable.
   file { '/etc/redis.conf.puppet':
     ensure  => present,
@@ -61,7 +63,7 @@ class redis (
     group   => root,
     mode    => '0644',
     content => template('redis/redis.conf.puppet.erb'),
-    require => Package['redis'],
+    require => Package[$packages],
   }
 
   exec { 'cp_redis_config':
@@ -77,7 +79,7 @@ class redis (
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
-    require    => Package['redis'],
+    require    => Package[$packages],
   }
 
   # Lay down the configuration script,  Content based on the config hash.
@@ -89,10 +91,10 @@ class redis (
     group   => 'root',
     mode    => '0755',
     content => template('redis/redis_config.sh.erb'),
-    require => Package['redis'],
+    require => Package[$packages],
     notify  => Exec['configure_redis'],
   }
-    
+
   # The config script will touch this file if redis is down when it tries to run.
   # Ensuring that it is absent allows puppet to retry the configuration step.
   file { '/var/cache/CONFIGUREREDIS':

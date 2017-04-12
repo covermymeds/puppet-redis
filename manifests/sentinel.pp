@@ -28,17 +28,18 @@
 class redis::sentinel (
   $version        = 'installed',
   $redis_clusters = undef,
+  $packages       = $redis::packages,
 ) {
 
   # Install the redis package
-  ensure_packages(['redis'], { 'ensure' => $version })
+  ensure_packages($packages, { 'ensure' => $version })
 
   # Declare /etc/sentinel.conf here so we can manage ownership
   file { '/etc/sentinel.conf':
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
-    require => Package['redis'],
+    require => Package[$packages],
   }
 
   # Sentinel rewrites its config file so we lay this one down initially.
@@ -50,7 +51,7 @@ class redis::sentinel (
     group   => 'root',
     mode    => '0644',
     content => template('redis/sentinel.conf.erb'),
-    require => Package['redis'],
+    require => Package[$packages],
   }
 
   exec { 'cp_sentinel_conf':
@@ -66,7 +67,7 @@ class redis::sentinel (
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
-    require    => Package['redis'],
+    require    => Package[$packages],
   }
 
   # Lay down the runtime configuration script
@@ -78,7 +79,7 @@ class redis::sentinel (
     group   => 'root',
     mode    => '0755',
     content => template('redis/sentinel_config.sh.erb'),
-    require => Package['redis'],
+    require => Package[$packages],
     notify  => Exec['configure_sentinel'],
   }
 

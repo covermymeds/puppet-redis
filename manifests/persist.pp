@@ -9,6 +9,7 @@
 #
 class redis::persist (
   $manage_persistence = $redis::manage_persistence,
+  $packages           = $redis::packages,
 ) {
 
   $ensure = $manage_persistence ? {
@@ -26,7 +27,7 @@ class redis::persist (
     group   => 'root',
     mode    => '0755',
     source  => 'puppet:///modules/redis/redis_persist.sh',
-    require => Package['redis'],
+    require => Package[$packages],
   }
 
   # Run a cron every minute to monitor the redis role and execute
