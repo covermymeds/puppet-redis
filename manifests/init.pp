@@ -28,7 +28,8 @@ class redis (
   $manage_persistence = false,
   $slaveof            = undef,
   $version            = 'installed',
-  $packages           = ['redis']
+  $packages           = ['redis'],
+  $service_name       = 'redis',
 ) {
 
   # Install the redis package
@@ -70,11 +71,11 @@ class redis (
     command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
     creates => '/etc/redis.conf.copied',
     require => File['/etc/redis.conf.puppet'],
-    notify  => Service[redis],
+    notify  => Service[$service_name],
   }
 
   # Run it!
-  service { 'redis':
+  service { $service_name:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -106,7 +107,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['redis'], File[$config_script] ],
+    require     => [ Service[$service_name], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on

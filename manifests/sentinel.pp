@@ -29,6 +29,7 @@ class redis::sentinel (
   $version        = 'installed',
   $redis_clusters = undef,
   $packages       = $redis::packages,
+  $service_name   = 'sentinel',
 ) {
 
   # Install the redis package
@@ -57,12 +58,12 @@ class redis::sentinel (
   exec { 'cp_sentinel_conf':
     command => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf && /bin/touch /etc/sentinel.conf.copied',
     creates => '/etc/sentinel.conf.copied',
-    notify  => Service['sentinel'],
+    notify  => Service[$service_name],
     require => File['/etc/sentinel.conf.puppet'],
   }
 
   # Run it!
-  service { 'sentinel':
+  service { $service_name:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -87,7 +88,7 @@ class redis::sentinel (
   exec { 'configure_sentinel':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['sentinel'], File[$config_script] ],
+    require     => [ Service[$service_name], File[$config_script] ],
   }
 
 }
