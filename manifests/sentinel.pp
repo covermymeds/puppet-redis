@@ -30,16 +30,16 @@
 class redis::sentinel (
   $version          = 'installed',
   $redis_clusters   = undef,
-  $packages         = $redis::packages,
-  $sentinel_conf    = 'sentinel.conf',
-  $sentinel_service = 'sentinel.service',
+  $sentinel_conf    = '/etc/sentinel.conf',
+  $sentinel_service = 'sentinel',
+  $packages         = ['redis'],
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
-  # Declare /etc/[sentinel_conf] here so we can manage ownership
-  file { "/etc/${sentinel_conf}":
+  # Declare $sentinel_conf here so we can manage ownership
+  file { $sentinel_conf:
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -49,7 +49,7 @@ class redis::sentinel (
   # Sentinel rewrites its config file so we lay this one down initially.
   # This allows us to manage the configuration file upon installation
   # and then never again.
-  file { "/etc/${sentinel_conf}.puppet":
+  file { "${sentinel_conf}.puppet":
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -59,10 +59,10 @@ class redis::sentinel (
   }
 
   exec { 'cp_sentinel_conf':
-    command => "/bin/cp /etc/${sentinel_conf}.puppet /etc/${sentinel_conf} && /bin/touch /etc/${sentinel_conf}.copied",
+    command => "/bin/cp ${sentinel_conf}.puppet ${sentinel_conf} && /bin/touch ${sentinel_conf}.copied",
     creates => "/etc/${sentinel_conf}.copied",
     notify  => Service[$sentinel_service],
-    require => File["/etc/${sentinel_conf}.puppet"],
+    require => File["${sentinel_conf}.puppet"],
   }
 
   # Run it!

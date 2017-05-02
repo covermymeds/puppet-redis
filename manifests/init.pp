@@ -30,7 +30,7 @@ class redis (
   $manage_persistence = false,
   $slaveof            = undef,
   $version            = 'installed',
-  $packages           = ['redis']
+  $packages           = ['redis'],
   $redis_conf         = 'redis.conf',
   $redis_service      = 'redis.service',
 ) {
