@@ -9,6 +9,8 @@
 # $slaveof: IP address of the initial master Redis server 
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
+# $redis_conf: The configuration file for redis
+# $redis_service: The serivce to run for redis
 #
 # === Examples
 #
@@ -27,12 +29,19 @@ class redis (
   $config             = {},
   $manage_persistence = false,
   $slaveof            = undef,
-  $version            = 'installed',
-  $packages           = ['redis']
+  $version            = 'redis-3.0.5-1.el7.cmm.x86_64',
+  $packages           = ['redis'],
+  $redis_conf         = '/etc/redis.conf',
+  $redis_service      = 'redis',
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
+
+  # We need to see what version is in use to see if protected-mode should be set.
+  if ( $version >= "3.2" ) or ( $version == "installed" ) {
+    $config_32 = true
+  }
 
   # Define the data directory with proper ownership if provided
   if ! empty($config['dir']) {
@@ -46,7 +55,7 @@ class redis (
   }
 
   # Declare /etc/redis.conf so that we can manage the ownership
-  file { '/etc/redis.conf':
+  file { $redis_conf:
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -57,7 +66,7 @@ class redis (
   # Redis rewrites its config file with additional state information so we only
   # want to do this the first time redis starts so we can at least get it
   # daemonized and assign a master node if applicable.
-  file { '/etc/redis.conf.puppet':
+  file { "${redis_conf}.puppet":
     ensure  => present,
     owner   => redis,
     group   => root,
@@ -67,14 +76,14 @@ class redis (
   }
 
   exec { 'cp_redis_config':
-    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
-    creates => '/etc/redis.conf.copied',
-    require => File['/etc/redis.conf.puppet'],
-    notify  => Service[redis],
+    command => "/bin/cp -p ${redis_conf}.puppet ${redis_conf} && /bin/touch ${redis_conf}.copied",
+    creates => "${redis_conf}.copied",
+    require => File["${redis_conf}.puppet"],
+    notify  => Service[$redis_service],
   }
 
   # Run it!
-  service { 'redis':
+  service { $redis_service:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -106,7 +115,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['redis'], File[$config_script] ],
+    require     => [ Service[$redis_service], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on
