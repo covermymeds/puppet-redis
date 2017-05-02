@@ -31,8 +31,8 @@ class redis::sentinel (
   $version          = 'installed',
   $redis_clusters   = undef,
   $packages         = $redis::packages,
-  $sentinel_conf    = undef,
-  $sentinel_service = undef,
+  $sentinel_conf    = 'sentinel.conf',
+  $sentinel_service = 'sentinel.service',
 ) {
 
   # Install the redis package

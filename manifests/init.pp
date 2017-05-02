@@ -9,8 +9,8 @@
 # $slaveof: IP address of the initial master Redis server 
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
-# $redis_conf: The configuration file for resis
-# $redis_service: The serivce to run for resis
+# $redis_conf: The configuration file for redis
+# $redis_service: The serivce to run for redis
 #
 # === Examples
 #
@@ -31,8 +31,8 @@ class redis (
   $slaveof            = undef,
   $version            = 'installed',
   $packages           = ['redis']
-  $redis_conf         = undef,
-  $redis_service      = undef,
+  $redis_conf         = 'redis.conf',
+  $redis_service      = 'redis.service',
 ) {
 
   # Install the redis package
