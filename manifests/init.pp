@@ -9,6 +9,8 @@
 # $slaveof: IP address of the initial master Redis server 
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
+# $redis_conf: The configuration file for resis
+# $redis_service: The serivce to run for resis
 #
 # === Examples
 #
@@ -29,6 +31,8 @@ class redis (
   $slaveof            = undef,
   $version            = 'installed',
   $packages           = ['redis']
+  $redis_conf         = undef,
+  $redis_service      = undef,
 ) {
 
   # Install the redis package
@@ -46,7 +50,7 @@ class redis (
   }
 
   # Declare /etc/redis.conf so that we can manage the ownership
-  file { '/etc/redis.conf':
+  file { "/etc/${redis_conf}":
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -57,7 +61,7 @@ class redis (
   # Redis rewrites its config file with additional state information so we only
   # want to do this the first time redis starts so we can at least get it
   # daemonized and assign a master node if applicable.
-  file { '/etc/redis.conf.puppet':
+  file { "/etc/${redis_conf}.puppet":
     ensure  => present,
     owner   => redis,
     group   => root,
@@ -67,14 +71,14 @@ class redis (
   }
 
   exec { 'cp_redis_config':
-    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
-    creates => '/etc/redis.conf.copied',
-    require => File['/etc/redis.conf.puppet'],
-    notify  => Service[redis],
+    command => "/bin/cp -p /etc/${redis_conf}.puppet /etc/${redis_conf} && /bin/touch /etc/${redis_conf}.copied",
+    creates => "/etc/${redis_conf}.copied",
+    require => File["/etc/${redis_conf}.puppet"],
+    notify  => Service[$redis_service],
   }
 
   # Run it!
-  service { 'redis':
+  service { $redis_service:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -106,7 +110,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['redis'], File[$config_script] ],
+    require     => [ Service[$redis_service], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on

@@ -5,6 +5,8 @@
 # === Parameters
 #
 # $redis_clusters - This is a hash that defines the redis clusters
+# $sentinel_conf - The configuration file to read for sentinel
+# $sentinel_service - The service to run for sentinel
 # that sentinel should watch.
 #
 # === Examples
@@ -26,16 +28,18 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis::sentinel (
-  $version        = 'installed',
-  $redis_clusters = undef,
-  $packages       = $redis::packages,
+  $version          = 'installed',
+  $redis_clusters   = undef,
+  $packages         = $redis::packages,
+  $sentinel_conf    = undef,
+  $sentinel_service = undef,
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
-  # Declare /etc/sentinel.conf here so we can manage ownership
-  file { '/etc/sentinel.conf':
+  # Declare /etc/[sentinel_conf] here so we can manage ownership
+  file { "/etc/${sentinel_conf}":
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -45,7 +49,7 @@ class redis::sentinel (
   # Sentinel rewrites its config file so we lay this one down initially.
   # This allows us to manage the configuration file upon installation
   # and then never again.
-  file { '/etc/sentinel.conf.puppet':
+  file { "/etc/${sentinel_conf}.puppet":
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -55,14 +59,14 @@ class redis::sentinel (
   }
 
   exec { 'cp_sentinel_conf':
-    command => '/bin/cp /etc/sentinel.conf.puppet /etc/sentinel.conf && /bin/touch /etc/sentinel.conf.copied',
-    creates => '/etc/sentinel.conf.copied',
-    notify  => Service['sentinel'],
-    require => File['/etc/sentinel.conf.puppet'],
+    command => "/bin/cp /etc/${sentinel_conf}.puppet /etc/${sentinel_conf} && /bin/touch /etc/${sentinel_conf}.copied",
+    creates => "/etc/${sentinel_conf}.copied",
+    notify  => Service[$sentinel_service],
+    require => File["/etc/${sentinel_conf}.puppet"],
   }
 
   # Run it!
-  service { 'sentinel':
+  service { $sentinel_service:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -87,7 +91,7 @@ class redis::sentinel (
   exec { 'configure_sentinel':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['sentinel'], File[$config_script] ],
+    require     => [ Service[$sentinel_service], File[$config_script] ],
   }
 
 }
