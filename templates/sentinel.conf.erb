@@ -17,6 +17,10 @@ port 26379
 # unmounting filesystems.
 dir /tmp
 
+<% if @confi_32 -%>
+protected-mode no
+<% end -%>
+
 # sentinel monitor <master-name> <ip> <redis-port> <quorum>
 #
 # Tells Sentinel to monitor this master, and to consider it in O_DOWN

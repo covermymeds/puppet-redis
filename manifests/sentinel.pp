@@ -38,6 +38,10 @@ class redis::sentinel (
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
+  if ( $version >= "3.2" ) or ( $version == "installed" ) {
+    $config_32 = true
+  }
+
   # Declare $sentinel_conf here so we can manage ownership
   file { $sentinel_conf:
     ensure  => present,
@@ -60,7 +64,7 @@ class redis::sentinel (
 
   exec { 'cp_sentinel_conf':
     command => "/bin/cp ${sentinel_conf}.puppet ${sentinel_conf} && /bin/touch ${sentinel_conf}.copied",
-    creates => "/etc/${sentinel_conf}.copied",
+    creates => "${sentinel_conf}.copied",
     notify  => Service[$sentinel_service],
     require => File["${sentinel_conf}.puppet"],
   }
