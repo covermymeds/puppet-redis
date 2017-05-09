@@ -33,6 +33,10 @@ class redis (
   $packages           = ['redis'],
   $redis_conf         = '/etc/redis.conf',
   $redis_service      = 'redis',
+  $version            = 'installed',
+  $packages           = ['redis'],
+  $redis_conf         = 'redis.conf',
+  $redis_service      = 'redis.service',
 ) {
 
   # Install the redis package
