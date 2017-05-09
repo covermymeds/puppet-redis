@@ -29,7 +29,7 @@ class redis (
   $config             = {},
   $manage_persistence = false,
   $slaveof            = undef,
-  $version            = 'redis-3.0.5-1.el7.cmm.x86_64',
+  $version            = 'installed',
   $packages           = ['redis'],
   $redis_conf         = '/etc/redis.conf',
   $redis_service      = 'redis',

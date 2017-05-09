@@ -28,7 +28,7 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis::sentinel (
-  $version          = 'redis-3.0.5-1.el7.cmm.x86_64',
+  $version          = 'installed',
   $redis_clusters   = undef,
   $sentinel_conf    = '/etc/sentinel.conf',
   $sentinel_service = 'sentinel',
