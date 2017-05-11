@@ -26,24 +26,20 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis (
-  $config             = {},
-  $manage_persistence = false,
-  $slaveof            = undef,
-  $version            = 'installed',
-  $packages           = ['redis'],
-  $redis_conf         = '/etc/redis.conf',
-  $redis_service      = 'redis',
-  $version            = 'installed',
-  $packages           = ['redis'],
-  $redis_conf         = 'redis.conf',
-  $redis_service      = 'redis.service',
+  $config               = {},
+  $manage_persistence   = false,
+  $slaveof              = undef,
+  String $version       = '3.2.3-1.el7',
+  $packages             = ['redis'],
+  String $redis_conf    = '/etc/redis.conf',
+  String $redis_service = 'redis',
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
   # We need to see what version is in use to see if protected-mode should be set.
-  if ( $version >= "3.2" ) or ( $version == "installed" ) {
+  if ( $version =~ "3.2" ) {
     $config_32 = true
   }
 

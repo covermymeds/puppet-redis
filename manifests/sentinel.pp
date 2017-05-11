@@ -28,18 +28,18 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis::sentinel (
-  $version          = 'installed',
-  $redis_clusters   = undef,
-  $sentinel_conf    = '/etc/sentinel.conf',
-  $sentinel_service = 'sentinel',
-  $packages         = ['redis'],
+  String $version          = 'installed',
+  $redis_clusters          = undef,
+  String $sentinel_conf    = '/etc/sentinel.conf',
+  String $sentinel_service = 'sentinel',
+  $packages                = ['redis'],
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
   # We need to see what version is in use to see if protected-mode should be set.
-  if ( $version >= "3.2" ) or ( $version == "installed" ) {
+  if ( $version =~ "3.2" ) {
     $config_32 = true
   }
 
