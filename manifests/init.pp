@@ -11,6 +11,9 @@
 # $packages: The packages needed to install redis
 # $redis_conf: The configuration file for redis
 # $redis_service: The serivce to run for redis
+# $protected - As of version 3.2 you need to set proteced-mode yes or no
+# or specifically bind to an address, you can use disabled here if your
+# versions is "installed"
 #
 # === Examples
 #
@@ -29,18 +32,21 @@ class redis (
   $config               = {},
   $manage_persistence   = false,
   $slaveof              = undef,
-  String $version       = '3.2.3-1.el7',
   $packages             = ['redis'],
+  String $protected     = 'no',
   String $redis_conf    = '/etc/redis.conf',
   String $redis_service = 'redis',
+  String $version       = 'installed',
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
   # We need to see what version is in use to see if protected-mode should be set.
-  if ( $version =~ "3.2" ) {
-    $config_32 = true
+  if ( $version =~ /^3.2.*/ ) or ( $version == 'installed' ) {
+    if ( $protected != "disabled" ) {
+      $config_32 = $protected
+    }
   }
 
   # Define the data directory with proper ownership if provided

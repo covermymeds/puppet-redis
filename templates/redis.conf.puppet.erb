@@ -39,7 +39,7 @@ daemonize yes
 # proteced-mode defaults to yes and will only allow loop back connections unless
 # the bind parameter is used with specific IPs.
 <% if @config_32 -%>
-protected-mode no
+protected-mode <%= @protected -%>
 <% end -%>
 
 # When running daemonized, Redis writes a pid file in /var/run/redis.pid by

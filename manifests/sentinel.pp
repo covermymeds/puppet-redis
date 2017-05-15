@@ -8,6 +8,9 @@
 # $sentinel_conf - The configuration file to read for sentinel
 # $sentinel_service - The service to run for sentinel
 # that sentinel should watch.
+# $protected - As of version 3.2 you need to set proteced-mode yes or no
+# or specifically bind to an address, you can use disabled here if
+# your versions is installed.
 #
 # === Examples
 #
@@ -28,19 +31,22 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis::sentinel (
-  String $version          = 'installed',
   $redis_clusters          = undef,
   String $sentinel_conf    = '/etc/sentinel.conf',
   String $sentinel_service = 'sentinel',
   $packages                = ['redis'],
+  String $protected        = 'no',
+  String $version          = 'installed',
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
 
   # We need to see what version is in use to see if protected-mode should be set.
-  if ( $version =~ "3.2" ) {
-    $config_32 = true
+  if ( $version =~ /^3.2.*/ ) or ( $version == 'installed' ) {
+    if ( $protected != "disabled" ) {
+      $config_32 = $protected
+    }
   }
 
   # Declare $sentinel_conf here so we can manage ownership
