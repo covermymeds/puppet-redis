@@ -43,7 +43,7 @@ class redis (
   ensure_packages($packages, { 'ensure' => $version })
 
   # We need to see what version is in use to see if protected-mode should be set.
-  if ( $version =~ /^3.2.*/ ) or ( $version == 'installed' ) {
+  if ( versioncmp( $version, '3.2' ) >= 0 ) or ( $version == 'installed' ) {
     if ( $protected != "disabled" ) {
       $config_32 = $protected
     }
