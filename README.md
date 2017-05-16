@@ -42,6 +42,5 @@ class { 'sentinel':
 # Notes
 The service definition is only dependent on the package so Redis may start with the configuration installed via your package.  The initial config file overlay will notify the Redis server to restart so upon initial installation Redis may start and then restart with updated configs.  In testing this has not presented any issues.
 
-
-
-
+Beginning with redis version 3.2, if you do not assign an IP to redis using the 'bind' configuration option, redis will only allow connections from localhost(127.0.0.1).  The configuration defaults to 'protected-mode yes', in order to have redis accept connections without setting 'bind', 'protected-mode' must be set to 'no'.  This could be considered a breaking change, if you have the 'protected-mode' specified in a configuration file when using a version before 3.2, redis
+will not start.

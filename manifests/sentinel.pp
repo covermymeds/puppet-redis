@@ -9,8 +9,8 @@
 # $sentinel_service - The service to run for sentinel
 # that sentinel should watch.
 # $protected - As of version 3.2 you need to set proteced-mode yes or no
-# or specifically bind to an address, you can use disabled here if
-# your versions is installed.
+# or specifically bind to an address, you can use "disabled" here if
+# your version is "installed" or you use the "bind" parameter in the config file.
 #
 # === Examples
 #
