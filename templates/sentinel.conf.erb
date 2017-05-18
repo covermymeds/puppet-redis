@@ -18,7 +18,7 @@ port 26379
 dir /tmp
 
 # proteced-mode defaults to yes and will only allow loop back connections unless
-# the bind parameter is used with specific IPs.
+# you bind to a specific IP.
 <% if @config_32 -%>
 protected-mode <%= @protected -%>
 <% end -%>
