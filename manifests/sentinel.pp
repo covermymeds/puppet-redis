@@ -6,7 +6,7 @@
 #
 # $redis_clusters - This is a hash that defines the redis clusters
 # $sentinel_conf - The configuration file to read for sentinel
-# $sentinel_service - The service to run for sentinel
+# $service_name - The service to run for sentinel
 # that sentinel should watch.
 # $protected - As of version 3.2 you need to set proteced-mode yes or no
 # or specifically bind to an address, if you are using an earlier
@@ -34,7 +34,7 @@
 class redis::sentinel (
   $redis_clusters          = undef,
   String $sentinel_conf    = '/etc/sentinel.conf',
-  String $sentinel_service = 'sentinel',
+  String $service_name     = 'sentinel',
   $packages                = ['redis'],
   String $protected        = 'no',
   String $version          = 'installed',
@@ -73,12 +73,12 @@ class redis::sentinel (
   exec { 'cp_sentinel_conf':
     command => "/bin/cp ${sentinel_conf}.puppet ${sentinel_conf} && /bin/touch ${sentinel_conf}.copied",
     creates => "${sentinel_conf}.copied",
-    notify  => Service[$sentinel_service],
+    notify  => Service[$service_name],
     require => File["${sentinel_conf}.puppet"],
   }
 
   # Run it!
-  service { $sentinel_service:
+  service { $service_name:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -103,7 +103,7 @@ class redis::sentinel (
   exec { 'configure_sentinel':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service[$sentinel_service], File[$config_script] ],
+    require     => [ Service[$service_name], File[$config_script] ],
   }
 
 }

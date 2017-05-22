@@ -10,7 +10,7 @@
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
 # $redis_conf: The configuration file for redis
-# $redis_service: The serivce to run for redis
+# $service_name: The serivce to run for redis
 # $protected - As of version 3.2 you need to set proteced-mode yes or no
 # or specifically bind to an address, if you are using an earlier
 # version of redis and "installed" as your version you can use "protected = disabled"
@@ -34,9 +34,9 @@ class redis (
   $manage_persistence   = false,
   $slaveof              = undef,
   $packages             = ['redis'],
-  String $protected     = 'no',
+  String $protected     = 'yes',
   String $redis_conf    = '/etc/redis.conf',
-  String $redis_service = 'redis',
+  String $service_name  = 'redis',
   String $version       = 'installed',
 ) {
 
@@ -86,11 +86,11 @@ class redis (
     command => "/bin/cp -p ${redis_conf}.puppet ${redis_conf} && /bin/touch ${redis_conf}.copied",
     creates => "${redis_conf}.copied",
     require => File["${redis_conf}.puppet"],
-    notify  => Service[$redis_service],
+    notify  => Service[$service_name],
   }
 
   # Run it!
-  service { $redis_service:
+  service { $service_name:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -122,7 +122,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service[$redis_service], File[$config_script] ],
+    require     => [ Service[$service_name], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on
