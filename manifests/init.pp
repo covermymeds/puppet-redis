@@ -9,6 +9,12 @@
 # $slaveof: IP address of the initial master Redis server 
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
+# $redis_conf: The configuration file for redis
+# $service_name: The serivce to run for redis
+# $protected - As of version 3.2 you need to set proteced-mode yes or no
+# or specifically bind to an address, if you are using an earlier
+# version of redis and "installed" as your version you can use "protected = disabled"
+# to make sure the option protected-mode is not added to the configuration fie.
 #
 # === Examples
 #
@@ -24,15 +30,25 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis (
-  $config             = {},
-  $manage_persistence = false,
-  $slaveof            = undef,
-  $version            = 'installed',
-  $packages           = ['redis']
+  $config               = {},
+  $manage_persistence   = false,
+  $slaveof              = undef,
+  $packages             = ['redis'],
+  String $protected     = 'yes',
+  String $redis_conf    = '/etc/redis.conf',
+  String $service_name  = 'redis',
+  String $version       = 'installed',
 ) {
 
   # Install the redis package
   ensure_packages($packages, { 'ensure' => $version })
+
+  # See if protected-mode should be set.
+  if ( versioncmp( $version, '3.2' ) >= 0 ) or ( $version == 'installed' ) {
+    if ( $protected != "disabled" ) {
+      $config_32 = $protected
+    }
+  }
 
   # Define the data directory with proper ownership if provided
   if ! empty($config['dir']) {
@@ -46,7 +62,7 @@ class redis (
   }
 
   # Declare /etc/redis.conf so that we can manage the ownership
-  file { '/etc/redis.conf':
+  file { $redis_conf:
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
@@ -57,7 +73,7 @@ class redis (
   # Redis rewrites its config file with additional state information so we only
   # want to do this the first time redis starts so we can at least get it
   # daemonized and assign a master node if applicable.
-  file { '/etc/redis.conf.puppet':
+  file { "${redis_conf}.puppet":
     ensure  => present,
     owner   => redis,
     group   => root,
@@ -67,14 +83,14 @@ class redis (
   }
 
   exec { 'cp_redis_config':
-    command => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf && /bin/touch /etc/redis.conf.copied',
-    creates => '/etc/redis.conf.copied',
-    require => File['/etc/redis.conf.puppet'],
-    notify  => Service[redis],
+    command => "/bin/cp -p ${redis_conf}.puppet ${redis_conf} && /bin/touch ${redis_conf}.copied",
+    creates => "${redis_conf}.copied",
+    require => File["${redis_conf}.puppet"],
+    notify  => Service[$service_name],
   }
 
   # Run it!
-  service { 'redis':
+  service { $service_name:
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -106,7 +122,7 @@ class redis (
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['redis'], File[$config_script] ],
+    require     => [ Service[$service_name], File[$config_script] ],
   }
 
   # In an HA setup we choose to only persist data to disk on

@@ -17,6 +17,12 @@ port 26379
 # unmounting filesystems.
 dir /tmp
 
+# proteced-mode defaults to yes and will only allow loop back connections unless
+# you bind to a specific IP.
+<% if @config_32 -%>
+protected-mode <%= @protected -%>
+<% end -%>
+
 # sentinel monitor <master-name> <ip> <redis-port> <quorum>
 #
 # Tells Sentinel to monitor this master, and to consider it in O_DOWN
