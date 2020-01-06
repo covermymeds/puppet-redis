@@ -6,7 +6,7 @@
 #
 # $config: A hash of Redis config options to apply at runtime
 # $manage_persistence: Boolean flag for including the redis::persist class
-# $slaveof: IP address of the initial master Redis server 
+# $replicaof: IP address of the initial master Redis server
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
 # $redis_conf: The configuration file for redis
@@ -15,14 +15,17 @@
 # or specifically bind to an address, if you are using an earlier
 # version of redis and "installed" as your version you can use "protected = disabled"
 # to make sure the option protected-mode is not added to the configuration fie.
+# $use_scl_redis: flag to indicate if Redis package is from Software Collections
+# $scl_redis_name: the SCL package name for Redis. Note this is different from $packages
+#                  (e.g. $scl_redis_name = "rh-redis5", $packages=['rh-redis5-redis'])
 #
 # === Examples
 #
 # $config_hash = { 'dir' => '/pub/redis', 'maxmemory' => '1073741824' }
 #
 # class { redis:
-#   config  => $config_hash
-#   slaveof => '192.168.33.10'
+#   config    => $config_hash
+#   replicaof => '192.168.33.10'
 # }
 #
 # === Authors
@@ -32,7 +35,9 @@
 class redis (
   $config               = {},
   $manage_persistence   = false,
-  $slaveof              = undef,
+  $replicaof            = undef,
+  $use_scl_redis        = false,
+  $scl_redis_name       = undef,
   $packages             = ['redis'],
   String $protected     = 'yes',
   String $redis_conf    = '/etc/redis.conf',
@@ -67,6 +72,25 @@ class redis (
     owner   => 'redis',
     group   => 'root',
     require => Package[$packages],
+  }
+
+  if $use_scl_redis and ! empty($scl_redis_name) {
+    file {'/etc/redis.conf':
+      ensure => link,
+      target => $redis_conf,
+    }
+
+    file {"/etc/profile.d/${scl_redis_name}-enable.sh":
+      ensure  => link,
+      target  => "/opt/rh/${scl_redis_name}/enable",
+      require => Package[$packages],
+    }
+
+    file {'/usr/bin/redis-cli':
+      ensure  => link,
+      target  => "/opt/rh/${scl_redis_name}/root/usr/bin/redis-cli",
+      require => Package[$packages],
+    }
   }
 
   # Lay down intermediate config file and copy it in with a 'cp' exec resource.
@@ -118,7 +142,7 @@ class redis (
     notify => Exec['configure_redis'],
   }
 
-  # Apply the configuration. 
+  # Apply the configuration.
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,
