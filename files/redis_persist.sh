@@ -20,7 +20,8 @@ function reconfig_redis() {
   fi
 }
 
-redis_cli='/usr/bin/redis-cli'
+redis_cli=$(which redis-cli 2>/dev/null)
+[[ $redis_cli == '' ]] && redis_cli='/usr/bin/redis-cli'
 cache_file='/var/cache/redis_role'
 role=$(${redis_cli} info | grep role | awk -F':' '{print $2}' | tr -d '[[:space:]]')
 
