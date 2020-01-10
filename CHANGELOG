@@ -3,4 +3,4 @@
 * Thu May 18 2017 Doug Morris <dmorris@covermymeds.com> - 2.0.0
 - BREAKING CHANGE: Introduces "protected-mode" configuration option, which will break pre 3.2.0 redis releases.  Also these changes require puppet version => 4.
 * Mon Jan 06 2020 Ryan Wang <rwang@covermymeds.com> - 3.0.0
-- UPDATE: Add support for SCL Redis, which has a different path than non-SCL Redis
+- UPDATE: Add support for SCL Redis, which has a different install path than non-SCL Redis

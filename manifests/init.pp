@@ -93,6 +93,11 @@ class redis (
     }
   }
 
+  $conf_template = $use_scl_redis ? {
+    true  => 'redis/redis5.conf.puppet.erb',
+    false => 'redis/redis.conf.puppet.erb'
+  }
+
   # Lay down intermediate config file and copy it in with a 'cp' exec resource.
   # Redis rewrites its config file with additional state information so we only
   # want to do this the first time redis starts so we can at least get it
@@ -102,7 +107,7 @@ class redis (
     owner   => redis,
     group   => root,
     mode    => '0644',
-    content => template('redis/redis.conf.puppet.erb'),
+    content => template($conf_template),
     require => Package[$packages],
   }
 
