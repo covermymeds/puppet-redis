@@ -12,6 +12,16 @@ Install the latest available version of Redis with default configs (defaults pro
 ```
 class { 'redis': }
 ```
+Note that if you're installing SCL Redis package, you will need to specify something like following parameters
+```
+class {'redis':
+  use_scl_redis  => true,
+  scl_redis_name => 'rh-redis5',
+  packages       => ['rh-redis5-redis'],
+  service_name   => 'rh-redis5-redis',
+  redis_conf     => '/etc/opt/rh/rh-redis5/redis.conf'
+}
+```
 
 Install Redis and configure as a slave.  Manage some other configuration including persistence.
 ```
