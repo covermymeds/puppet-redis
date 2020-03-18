@@ -6,7 +6,7 @@
 #
 # $config: A hash of Redis config options to apply at runtime
 # $manage_persistence: Boolean flag for including the redis::persist class
-# $replicaof: IP address of the initial master Redis server
+# $slaveof: IP address of the initial master Redis server (Being deprecated)
 # $version: The package version of Redis you want to install
 # $packages: The packages needed to install redis
 # $redis_conf: The configuration file for redis
@@ -24,8 +24,8 @@
 # $config_hash = { 'dir' => '/pub/redis', 'maxmemory' => '1073741824' }
 #
 # class { redis:
-#   config    => $config_hash
-#   replicaof => '192.168.33.10'
+#   config  => $config_hash
+#   slaveof => '192.168.33.10'
 # }
 #
 # === Authors
@@ -35,7 +35,7 @@
 class redis (
   $config               = {},
   $manage_persistence   = false,
-  $replicaof            = undef,
+  $slaveof              = undef,
   $use_scl_redis        = false,
   $scl_redis_name       = undef,
   $packages             = ['redis'],
